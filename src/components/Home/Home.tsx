@@ -27,7 +27,7 @@ const Home = () => {
     images.forEach((file: File, i: number) => {
       formData.append('images' + i, file.file as any)
     })
-    axios.post('/api/images', formData).then((response) => setVideoPath(response.data.path))
+    axios.post('/api/images', formData).then((response) => setTimeout(() => setVideoPath(response.data.path), 3000))
   }
   const handleDelete = (id: string) => {
     const imgsFiltered: any = images.filter((e: File) => e.id !== id)
@@ -39,11 +39,21 @@ const Home = () => {
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '40%' }}>
         <h1>Import Images</h1>
         <input type='file' name='images' id='images' accept='.jpg, .png, .jpge' onChange={handleChange} />
-        <button onClick={handleConvert} style={{ marginTop: '10px' }}>
-          Convert
-        </button>
-        <h4>Images Selected</h4>
-        <div style={{ width: '100%', display: 'grid', gridTemplateColumns: '4' }}>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button
+            onClick={handleConvert}
+            disabled={!images.length}
+            style={{ marginTop: '10px', background: '#001d3d', color: 'white' }}
+          >
+            CONVERT
+          </button>
+          <button onClick={() => setImages([])} style={{ marginTop: '10px', background: '#001d3d', color: 'white' }}>
+            RESET IMAGES
+          </button>
+        </div>
+        <h4 style={{ padding: '0px', margin: '0', marginTop: '20px' }}>Images Selected</h4>
+        <hr style={{ width: '80%', color: 'black', margin: '20px' }} />
+        <div style={{ width: '80%', display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
           {images?.map((file: File, i: number) => (
             <div key={i}>
               <ImageSelected file={file} handleDelete={handleDelete} />
