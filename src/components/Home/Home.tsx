@@ -2,8 +2,10 @@ import React, { useEffect, useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import axios from 'axios'
 import uuid from 'react-uuid'
+import ReactPlayer from 'react-player'
 import ImageSelected from '../ImageSelected/ImageSelected'
 import { sendImages } from '../../shared/apiFunctions/queryMutations'
+import { getVideo } from '../../shared/apiFunctions/queryFunctions'
 
 interface File {
   id: string
@@ -17,7 +19,7 @@ interface File {
 
 const Home = () => {
   const [images, setImages] = useState([])
-  const [videoPath, setVideoPath] = useState<string | null>()
+  const [video, setVideo] = useState<any | null>()
   const [loadingVideo, setLoadingVideo] = useState(false)
   const [successVideo, SetSuccessVideo] = useState(false)
   const [errorVideo, setErrorVideo] = useState(false)
@@ -27,7 +29,7 @@ const Home = () => {
     mutationFn: sendImages,
     onMutate: () => {
       setData(null)
-      setVideoPath(null)
+      setVideo(null)
       SetSuccessVideo(false)
       setErrorVideo(false)
       setLoadingVideo(true)
@@ -59,7 +61,12 @@ const Home = () => {
     setImages(imgsFiltered)
   }
   useEffect(() => {
-    if (data && successVideo) setVideoPath(data.path)
+    if (data && successVideo) {
+      const path = `${axios.defaults.baseURL}${data.path.slice(1)}`
+      console.log(path, typeof path)
+      setVideo(path)
+      // getVideo(path).then((video) => setVideo(video))
+    }
   }, [data])
 
   return (
@@ -97,10 +104,12 @@ const Home = () => {
           <p>An Error ocurrer: {data.message}</p>
         ) : (
           successVideo &&
-          videoPath && (
-            <video controls width='100%' autoPlay>
-              <source src={`${axios.defaults.baseURL}${videoPath.slice(1)}`} type='video/mp4'></source>
+          video &&
+          ReactPlayer.canPlay(video) && (
+            <video controls width='100%'>
+              <source src={video} type='video/mp4' />
             </video>
+            // <ReactPlayer url={video} controls />
           )
         )}
       </div>
